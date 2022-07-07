@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "641155218535",
+    "project_id": "settleit-279a6",
+    "storage_bucket": "settleit-279a6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:641155218535:android:8940b60eeb61821af0e8c2",
+        "android_client_info": {
+          "package_name": "com.settleit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "641155218535-rtvsv3mud0ippumbs93jlsjnlbnap9m3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_HRs5tV2P_d72Q2OiSl4kbsnRtFtxrEc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "641155218535-rtvsv3mud0ippumbs93jlsjnlbnap9m3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
