@@ -18,11 +18,18 @@ export function emailValidation(data) {
 
 
   export function passwordValidation(data) {
-    if (data === "" || data === null || data === undefined) {
-      return { status: false, message: "*Please provide a valid password." };
-    } else {
-      return { status: true, message: "" };
+    let pass = Number(data)
+    
+    if (typeof pass != 'number') {
+      return { status: false, message: "*Password Must be in numeric" };
     }
+    
+    if(data.length<6 || data.length>6) {
+      return { status: false, message: "*Password Length Must Be Greater than 6" };
+    }
+
+      return {state:true,message:""}
+    
   }
   
   // Username validation handler

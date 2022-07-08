@@ -83,7 +83,7 @@ const Home = ({navigation}: props) => {
         const user = await AsyncStorage.getItem("user");
         const parse = JSON.parse(user)
 
-        firestore().collection("ac_vouchers").where("glcode","==",parse.phone_no,"or","gl2","==",parse.phone_no).get()
+        firestore().collection("ac_vouchers").where("glcode","==",parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ",""),"or","gl2","==",parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ","")).get()
         .then(res=>{
           dispatch({
             type: GETHOMEDATA,

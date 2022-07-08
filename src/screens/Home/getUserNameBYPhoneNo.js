@@ -21,7 +21,8 @@ export default class GetUsetNameByPhoneNo extends React.Component{
             .then(res=>{
                 
                res.forEach(data=>{
-                if(data.phoneNumbers[0].number.replace(" ","") == this.props.phone_no.replace(" ","")){
+              
+                if(data.phoneNumbers[0].number.replace("-","").replace("-","").replace(" ","").replace(" ","")  === this.props.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ","") ){
                     console.log(data.givenName)
                     this.setState({name:data.givenName})
                 }else if(this.state.name.length<1){

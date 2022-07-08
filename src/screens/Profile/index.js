@@ -35,7 +35,7 @@ import {
   validatePhoneNo,
 } from '../../utilities/validation';
 import { Base64 } from 'js-base64';
-
+import validator from 'validator';
 import firestore from '@react-native-firebase/firestore'
 import  Icon  from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -95,13 +95,15 @@ const Profile = ({navigation}) => {
       currencyError,
       nameError,
     } = state;
+
+    if(validator.isMobilePhone(cellno) == false){
+      Alert.alert("Invalid Phone Number")
+      return false
+    }
     if (validateFirstName(name).status !== true) {
       setState({...state, nameError: validateFirstName(name).message});
       // setFirstNameError(validateFirstName(name).message);
-    } else if (validatePhoneNo(cellno).status !== true) {
-      setState({...state, cellnoError: validatePhoneNo(cellno).message});
-      // setMobileNumberError(validatePhoneNo(mobileNumber).message);
-    } else if (email == '') {
+    }  else if (email == '') {
       setState({...state, emailError: 'Enter Email Address'});
       // setEmailIdError("Enter Email Address");
     } else if (validateEmail(email).status !== true) {
@@ -128,7 +130,7 @@ const Profile = ({navigation}) => {
         firestore().collection("users").doc(parse.id).update({
             email:email,
             glname:name,
-            phone_no:cellno.replace(" ",""),
+            phone_no:cellno.replace("-","").replace("-","").replace(" ","").replace(" ",""),
             currency:currency,
             password:Base64.encode(password)
         })
@@ -139,7 +141,7 @@ const Profile = ({navigation}) => {
                 "glname":u._data.glname,
                 "id":u.id,
                 "email":u._data.email,
-                "phone_no":u._data.phone_no.replace(" ",""),
+                "phone_no":u._data.phone_no,
                 "currency":u._data.currency
             }
             await AsyncStorage.setItem("user",JSON.stringify(user))
@@ -156,7 +158,7 @@ const Profile = ({navigation}) => {
       await  firestore().collection("users").doc(parse.id).update({
             email:email,
             glname:name,
-            phone_no:cellno.replace(" ",""),
+            phone_no:cellno.replace("-","").replace("-","").replace(" ","").replace(" ",""),
             currency:currency,
 
         })
@@ -170,7 +172,7 @@ const Profile = ({navigation}) => {
                     "glname":u._data.glname,
                     "id":u.id,
                     "email":u._data.email,
-                    "phone_no":u._data.phone_no.replace(" ",""),
+                    "phone_no":u._data.phone_no,
                     "currency":u._data.currency
 
                 }
@@ -255,8 +257,9 @@ const Profile = ({navigation}) => {
           </View> */}
 
 
-<View style={{borderBottomColor:"white",borderBottomWidth:1,width:'100%',marginTop:20}}>
-          <Text style={{color:"white"}}>Select Your Currency</Text>
+<Text style={{color:"white",marginTop:20,}}>Select Your Currency</Text>
+
+          <View style={{borderBottomColor:"white",borderBottomWidth:1,width:'100%',marginTop:8,backgroundColor:"white"}}>
             
           <RNPickerSelect
             onValueChange={(value) => setState({...state,currency:value})}

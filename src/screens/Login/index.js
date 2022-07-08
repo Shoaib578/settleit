@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ImageBackground,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import Colors from '../../common/Colors';
 import Common from '../../common';
@@ -16,11 +17,13 @@ import AntDesign from 'react-native-vector-icons/AntDesign'
 import PhoneInput from "react-native-phone-number-input";
 
 import {
+  passwordValidation,
   validateEmail,
   validateFirstName,
   validatePassword,
   validatePhoneNo,
 } from "../../utilities/validation";
+import validator from 'validator';
 
 import { Base64 } from 'js-base64';
 
@@ -53,54 +56,62 @@ const Login = ({navigation}) => {
     
     
 
-   
-    if (validatePhoneNo(cellno.replace(" ","")).status !== true) {
-      setState({...state, cellnoError: validatePhoneNo(cellno).message})
-      // setMobileNumberError(validatePhoneNo(mobileNumber).message);
-    } 
-    else if (validatePassword(password).status !== true) {
-      setState({...state, passwordError: validatePassword(password).message})
-      // setPasswordTextError(validatePassword(passwordText).message);
+    if(validator.isMobilePhone(cellno) == false){
+      Alert.alert("Invalid Phone Number")
+      return false
     }
-    else {
-    setState({...state, loader:true});
-    let data = {
-      // email: email,
-      cellno: cellno,
-      pwd: password,
-      // fname: name,
-    };
-    
-    
-    firestore().collection("users").where("phone_no","==",cellno.replace(" ","")).get()
-    .then(async(res)=>{
-     console.log(res.docs)
-      if(res.size>0){
-        if(data.pwd == Base64.decode(res.docs[0]._data.password).toString()){
-          const user = {    
-            "glname":res.docs[0]._data.glname,
-            "id":res.docs[0].id,
-            "email":res.docs[0]._data.email,
-            "phone_no":res.docs[0]._data.phone_no,
-            "currency":res.docs[0]._data.currency
-        }
-        await AsyncStorage.setItem("user",JSON.stringify(user))
-        navigation.reset({
-          index: 0,
-          routes:[{ name: 'Home'}],
-        });
+   
+     if (passwordValidation(password).status == false) {
+     
+      setState({...state, passwordError: passwordValidation(password).message})
+      
+      // setPasswordTextError(validatePassword(passwordText).message);
+    }else{
+      console.log("Hello")
+      setState({...state, loader:true});
+      let data = {
+        // email: email,
+        cellno: cellno,
+        pwd: password,
+        // fname: name,
+      };
+      
+      
+      firestore().collection("users").where("phone_no","==",cellno.replace("-","").replace("-","").replace(" ","").replace(" ","")).get()
+      .then(async(res)=>{
+       console.log(res.docs)
+        if(res.size>0){
+          if(data.pwd == Base64.decode(res.docs[0]._data.password).toString()){
+            const user = {    
+              "glname":res.docs[0]._data.glname,
+              "id":res.docs[0].id,
+              "email":res.docs[0]._data.email,
+              "phone_no":res.docs[0]._data.phone_no,
+              "currency":res.docs[0]._data.currency
+          }
+          await AsyncStorage.setItem("user",JSON.stringify(user))
+          navigation.reset({
+            index: 0,
+            routes:[{ name: 'Home'}],
+          });
+          }else{
+            console.log("Invalid")
+            Alert.alert("Invalidat Email or Password")
+          }
+          setState({...state, loader:false});
+  
         }else{
-          Alert.alert("Invalidat Email or Password")
+          console.log("Invalid")
+  
+          Alert.alert("Invalid Email or Password")
+      setState({...state, loader:false});
+  
         }
-        setState({...state, loader:false});
-
-      }else{
-        Alert.alert("Invalid Email or Password")
-    setState({...state, loader:false});
-
-      }
-    })
-  }
+      })
+    }
+    
+     
+ 
   };
   return (
     <ImageBackground
@@ -164,6 +175,7 @@ const Login = ({navigation}) => {
               <TextInput
                 style={styles.input}
                 secureTextEntry
+                keyboardType='numeric'
                 onChangeText={(e) => setState({...state, password: e, passwordError:''})}
                 value={state.password}
               />
@@ -187,6 +199,7 @@ const Login = ({navigation}) => {
           </View>
           <View style={{alignItems: 'center'}}>
             <TouchableOpacity style={styles.loginBtn} onPress={login}>
+              {state.loader?<ActivityIndicator size="small" color="white"/>:null}
               <Text style={{color: 'white'}}>LOGIN</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Signup')}>

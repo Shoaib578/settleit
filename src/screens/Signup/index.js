@@ -18,9 +18,10 @@ import {useDispatch, useSelector} from 'react-redux';
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import PhoneInput from "react-native-phone-number-input";
 import RNPickerSelect from 'react-native-picker-select';
-
+import validator from 'validator';
 import {
   currencyValidation,
+  passwordValidation,
   validateEmail,
   validateFirstName,
   validatePassword,
@@ -89,28 +90,28 @@ const Signup = ({navigation}) => {
       nameError,
     } = state;
     
-  
+    if(validator.isMobilePhone(cellno) == false){
+      Alert.alert("Invalid Phone Number")
+      return false
+    }
 
     
-    if (validateFirstName(name).status !== true) {
+    if (validateFirstName(name).status == false) {
       setState({...state, nameError: validateFirstName(name).message});
       // setFirstNameError(validateFirstName(name).message);
-    } else if (validatePhoneNo(cellno.replace(" ","")).status !== true) {
-      setState({...state, cellnoError: validatePhoneNo(cellno).message});
-      // setMobileNumberError(validatePhoneNo(mobileNumber).message);
     } else if (email == '') {
       setState({...state, emailError: 'Enter Email Address'});
       // setEmailIdError("Enter Email Address");
-    } else if (validateEmail(email).status !== true) {
-      setState({...state, emailError: validateEmail(emailId).message});
+    } else if (validateEmail(email).status == false) {
+      setState({...state, emailError: validateEmail(email).message});
       // setEmailIdError(validateEmail(emailId).message);
-    } else if (validatePassword(password).status !== true) {
-      setState({...state, passwordError: validatePassword(password).message});
+    } else if (passwordValidation(password).status == false) {
+      setState({...state, passwordError: passwordValidation(password).message});
       // setPasswordTextError(validatePassword(passwordText).message);
     } else if (password2 !== password) {
       setState({...state, password2Error: 'Please enter same password'});
       // setPasswordTextError(validatePassword(passwordText).message);
-    }else if(currencyValidation(currency).status !== true){
+    }else if(currencyValidation(currency).status == false){
       setState({...state, currencyError: 'Currency Field is required'});
 
     } else {
@@ -123,7 +124,7 @@ const Signup = ({navigation}) => {
         name: name,
         currency:currency
       };
-     firestore().collection("users").where("phone_no","==",data.cellno).get()
+     firestore().collection("users").where("phone_no","==",data.cellno.replace("-","").replace("-","").replace(" ","").replace(" ","")).get()
      .then(res=>{
       if(res.size>0){
       setState({...state, loader: false});
@@ -132,7 +133,7 @@ const Signup = ({navigation}) => {
       }else{
         firestore().collection("users").add({
           glname:data.name,
-          phone_no:cellno.replace(" ",""),
+          phone_no:cellno.replace("-","").replace("-","").replace(" ","").replace(" ",""),
           password:Base64.encode(data.pwd),
           currency:data.currency,
           email:data.email
@@ -238,35 +239,19 @@ const Signup = ({navigation}) => {
               )}
 
 
-          {/* <View style={{marginVertical: 20}}>
-            <Text style={{color: '#ffffff'}}>Currency</Text>
-            <View>
-              <TextInput
-                style={styles.input}
-                onChangeText={(e) =>
+         
+        <Text style={{color:"white",marginTop:20,}}>Select Your Currency</Text>
 
-                  setState({...state, currency:e,currencyError:''})
-                }
-                
-                
-              />
-              {state.currencyError != '' && (
-                <Text style={{color: 'red'}}>{state.currencyError}</Text>
-              )}
-            </View>
-          </View> */}
-
-          <View style={{borderBottomColor:"white",borderBottomWidth:1,width:'100%',marginTop:20}}>
-        <Text style={{color:"white"}}>Select Your Currency</Text>
+          <View style={{borderBottomColor:"white",borderBottomWidth:1,width:'100%',marginTop:8,backgroundColor:"white"}}>
             
           <RNPickerSelect
             onValueChange={(value) => setState({...state,currency:value})}
-           
+          
            
             items={currencyList}
-        >
+        />
        
-        </RNPickerSelect>
+       
           {state.currencyError != '' && (
                 <Text style={{color: 'red'}}>{state.currencyError}</Text>
               )}
@@ -279,6 +264,9 @@ const Signup = ({navigation}) => {
             <View>
               <TextInput
                 style={styles.input}
+                secureTextEntry
+                keyboardType='numeric'
+
                 onChangeText={(e) =>
                   setState({...state, password: e, passwordError: ''})
                 }
@@ -295,6 +283,8 @@ const Signup = ({navigation}) => {
             <View>
               <TextInput
                 style={styles.input}
+                secureTextEntry
+                keyboardType='numeric'
                 onChangeText={(e) =>
                   setState({...state, password2: e, password2Error: ''})
                 }
@@ -308,6 +298,7 @@ const Signup = ({navigation}) => {
 
           <View style={{alignItems: 'center'}}>
             <TouchableOpacity style={styles.loginBtn} onPress={signup}>
+              {state.loader?<ActivityIndicator size="small" color="white"/>:null}
               <Text style={{color: 'white'}}>Signup</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.goBack()}>

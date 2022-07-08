@@ -60,8 +60,8 @@ if(amtcr <1){
   return false
 }
 firestore().collection("ac_vouchers").add({
-  gl2:user_phone_number.replace(" ",""),
-  glcode:parse.phone_no.replace(" ",""),
+  gl2:user_phone_number.replace("-","").replace("-","").replace(" ","").replace(" ",""),
+  glcode:parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ",""),
   vdate:date,
   linenum:1,
   mode:mode,
@@ -76,8 +76,8 @@ firestore().collection("ac_vouchers").add({
 .then(res=>{
   
 firestore().collection("ac_vouchers").add({
-  gl2:parse.phone_no.replace(" ",""),
-  glcode:user_phone_number.replace(" ",""),
+  gl2:parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ",""),
+  glcode:user_phone_number.replace("-","").replace("-","").replace(" ","").replace(" ",""),
   vdate:date,
   linenum:2,
   mode:mode,
@@ -101,10 +101,12 @@ const Receive = async(date,mode,amount,reason,navigation,fetchData)=>{
   const user = await AsyncStorage.getItem("user")
   const parse = JSON.parse(user)
 
-  if(Date(date)>new Date()){
-    Alert.alert("You cant choose future date")
+  if(new Date(date)>new Date()){
+    Alert.alert("Future date is not acceptable")
     return false
   }
+
+  
   let user_phone_number = navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number
   if(amount <1){
     Alert.alert("The Amount Must Be Greater than 0")
@@ -112,8 +114,8 @@ const Receive = async(date,mode,amount,reason,navigation,fetchData)=>{
   }
   
   firestore().collection("ac_vouchers").add({
-    gl2:user_phone_number.replace(" ",""),
-    glcode:parse.phone_no.replace(" ",""),
+    gl2:user_phone_number.replace("-","").replace("-","").replace(" ","").replace(" ",""),
+    glcode:parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ",""),
     vdate:date,
     linenum:1,
     mode:mode,
@@ -126,8 +128,8 @@ const Receive = async(date,mode,amount,reason,navigation,fetchData)=>{
   })
   .then(res=>{
     firestore().collection("ac_vouchers").add({
-      gl2:parse.phone_no.replace(" ",""),
-      glcode:user_phone_number.replace(" ",""),
+      gl2:parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ",""),
+      glcode:user_phone_number.replace("-","").replace("-","").replace(" ","").replace(" ",""),
       vdate:date,
       linenum:2,
       mode:mode,
@@ -196,7 +198,7 @@ const PaidModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBalanc
             borderBottomWidth: 1,
             padding: 20,
           }}>
-            <Text>{ navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo phone_no={navigation.getState().routes[1].params.user_phone_number}/>}</Text>
+            <Text>{ navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo routeName={navigation.getState().routes[1].name} phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo phone_no={navigation.getState().routes[1].params.user_phone_number}/>}</Text>
           
             <Text>{navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number}</Text>
         </View>
@@ -222,7 +224,7 @@ const PaidModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBalanc
               <Text
                 style={{paddingVertical: 8, paddingLeft: 5}}
                 onPress={showDatePicker}>
-                {date?Moment(date).format("MM/d/y"):'Pick up the date'}
+                {date?Moment(date).format("LL"):'Pick up the date'}
               </Text>
               <DateTimePickerModal
                 isVisible={isDatePickerVisible}
@@ -389,7 +391,7 @@ const ReceiveModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBal
             padding: 20,
           }}>
           
-          <Text>{ navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo phone_no={navigation.getState().routes[1].params.user_phone_number}/>}</Text>
+          <Text>{ navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo routeName={navigation.getState().routes[1].name} phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo  routeName={navigation.getState().routes[1].name} phone_no={navigation.getState().routes[1].params.user_phone_number}/>}</Text>
           
           <Text>{navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number}</Text>
         </View>
@@ -415,7 +417,7 @@ const ReceiveModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBal
               <Text
                 style={{paddingVertical: 8, paddingLeft: 5}}
                 onPress={showDatePicker}>
-                {date?Moment(date).format("MM/d/y"):'Pick up the date'}
+                {date?Moment(date).format("LL"):'Pick up the date'}
 
               </Text>
               <DateTimePickerModal
@@ -546,7 +548,7 @@ const getData = () => {
       const parse = JSON.parse(user)
       let user_phone_number = navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number
 
-      firestore().collection('ac_vouchers').where("gl2","==",user_phone_number,"and","glcode","==",parse.phone_no).get()
+      firestore().collection('ac_vouchers').where("gl2","==",user_phone_number.replace("-","").replace("-","").replace(" ","").replace(" ",""),"and","glcode","==",parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ","")).get()
       .then(res=>{
         dispatch({
           type: GETCHATDATA,
@@ -571,7 +573,7 @@ const getBalance = ()=>{
   let paid = 0
   let user_phone_number = navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number
 
-  firestore().collection("ac_vouchers").where("gl2","==",user_phone_number).where("glcode","==",parse.phone_no).get()
+  firestore().collection("ac_vouchers").where("gl2","==",user_phone_number.replace("-","").replace("-","").replace(" ","").replace(" ","")).where("glcode","==",parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ","")).get()
   .then(res=>{
     res.docs.forEach(data=>{
       receive = data._data.vseries == "R"?(receive+parseFloat(data._data.amtcr)+parseFloat(data._data.amtdr)):receive
@@ -707,7 +709,7 @@ const fetchData = ()=>dispatch(getData())
             allowFontScaling={false}
             numberOfLines={1}
             style={{fontSize: 22, fontWeight: 'bold', color: '#111111'}}>
-            { navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo phone_no={navigation.getState().routes[1].params.user_phone_number}/>}
+            { navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo  routeName={navigation.getState().routes[1].name} phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo  routeName={navigation.getState().routes[1].name} phone_no={navigation.getState().routes[1].params.user_phone_number}/>}
             
            
             

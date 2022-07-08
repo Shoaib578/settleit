@@ -21,9 +21,10 @@ export default class GetGl2Name extends React.Component{
             .then(res=>{
                 
                res.forEach(data=>{
-                   
-                    if(data.phoneNumbers[0].number.replace(" ","") == this.props.gl2.replace(" ","")){
-                        this.setState({name:data.givenName})
+                  
+                    if(data.phoneNumbers[0].number.replace("-","").replace("-","").replace(" ","").replace(" ","") == this.props.gl2.replace("-","").replace("-","").replace(" ","").replace(" ","") ){
+                       
+                        this.setState({name:data.displayName})
                     }else if(this.state.name.length<1){
                         this.setState({name:this.props.gl2})
                     }
