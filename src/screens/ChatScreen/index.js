@@ -42,7 +42,18 @@ type modalProps = {
   onPressClose: Object,
 };
 
+function replaceCode(number,code){
+  let new_number = ''
+  let except = ''
+if(number[0] === "0"){
+except = number.slice(1)
+new_number = (code+except).toString()
+}else{
+  new_number = number.toString()
+}
 
+return new_number.replace(" ","").replace(" ","").replace("-","").replace("-","")
+}
 
 
 const Paid = async(date,mode,amtcr,reason,navigation,fetchData)=>{
@@ -60,7 +71,7 @@ if(amtcr <1){
   return false
 }
 firestore().collection("ac_vouchers").add({
-  gl2:user_phone_number.replace("-","").replace("-","").replace(" ","").replace(" ",""),
+  gl2:replaceCode(user_phone_number,parse.country_code),
   glcode:parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ",""),
   vdate:date,
   linenum:1,
@@ -77,7 +88,7 @@ firestore().collection("ac_vouchers").add({
   
 firestore().collection("ac_vouchers").add({
   gl2:parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ",""),
-  glcode:user_phone_number.replace("-","").replace("-","").replace(" ","").replace(" ",""),
+  glcode:replaceCode(user_phone_number,parse.country_code),
   vdate:date,
   linenum:2,
   mode:mode,
@@ -114,8 +125,8 @@ const Receive = async(date,mode,amount,reason,navigation,fetchData)=>{
   }
   
   firestore().collection("ac_vouchers").add({
-    gl2:user_phone_number.replace("-","").replace("-","").replace(" ","").replace(" ",""),
-    glcode:parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ",""),
+    gl2:replaceCode(user_phone_number,parse.country_code),
+    glcode:parse.phone_no.replace(" ","").replace(" ","").replace("-","").replace("-",""),
     vdate:date,
     linenum:1,
     mode:mode,
@@ -123,13 +134,13 @@ const Receive = async(date,mode,amount,reason,navigation,fetchData)=>{
     narr:reason,
     amtdr:amount,
     vseries:"R",
-  currency:parse.currency,
+    currency:parse.currency,
 
   })
   .then(res=>{
     firestore().collection("ac_vouchers").add({
-      gl2:parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ",""),
-      glcode:user_phone_number.replace("-","").replace("-","").replace(" ","").replace(" ",""),
+      gl2:parse.phone_no.replace(" ","").replace(" ","").replace("-","").replace("-",""),
+      glcode:replaceCode(user_phone_number,parse.country_code),
       vdate:date,
       linenum:2,
       mode:mode,
@@ -164,6 +175,7 @@ const PaidModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBalanc
     {label: 'Adjustment', value: 'Adjustment'},
   ]);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [countryCode,setCountryCode] = useState("")
   const [date,setDate] = useState(new Date())
   const [mode,setMode] = useState("Cash")
   const [reason,setReason] = useState("")
@@ -172,6 +184,20 @@ const PaidModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBalanc
     setDatePickerVisibility(true);
   };
 
+  const getUserCountryCode = async()=>{
+    const user = await AsyncStorage.getItem("user")
+    const parse = JSON.parse(user)
+    console.log(parse)
+    setCountryCode(parse.country_code)
+
+    
+    
+
+  }
+
+  useEffect(()=>{
+    getUserCountryCode()
+  },[])
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
   };
@@ -198,9 +224,9 @@ const PaidModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBalanc
             borderBottomWidth: 1,
             padding: 20,
           }}>
-            <Text>{ navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo routeName={navigation.getState().routes[1].name} phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo phone_no={navigation.getState().routes[1].params.user_phone_number}/>}</Text>
+            <Text>{ navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo  phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo phone_no={navigation.getState().routes[1].params.user_phone_number}/>}</Text>
           
-            <Text>{navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number}</Text>
+            <Text>{navigation.getState().routes[1].name =="AddNewUser"?replaceCode(navigation.getState().routes[2].params.user_phone_number,countryCode):replaceCode(navigation.getState().routes[1].params.user_phone_number,countryCode)}</Text>
         </View>
         <View style={{padding: 20}}>
           <Text style={{fontWeight: 'bold', paddingBottom: 15}}>
@@ -356,6 +382,23 @@ const ReceiveModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBal
   const [date,setDate] = useState(new Date())
   const [mode,setMode] = useState("Cash") 
   const [reason,setReason] = useState("")
+  const [countryCode,setCountryCode] = useState("")
+
+
+  const getUserCountryCode = async()=>{
+    const user = await AsyncStorage.getItem("user")
+    const parse = JSON.parse(user)
+    console.log(parse)
+    setCountryCode(parse.country_code)
+
+    
+    
+
+  }
+
+  useEffect(()=>{
+    getUserCountryCode()
+  },[])
   console.log(onPressClose)
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -391,9 +434,10 @@ const ReceiveModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBal
             padding: 20,
           }}>
           
-          <Text>{ navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo routeName={navigation.getState().routes[1].name} phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo  routeName={navigation.getState().routes[1].name} phone_no={navigation.getState().routes[1].params.user_phone_number}/>}</Text>
+          <Text>{ navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo  phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo   phone_no={navigation.getState().routes[1].params.user_phone_number}/>}</Text>
+
           
-          <Text>{navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number}</Text>
+          <Text>{navigation.getState().routes[1].name =="AddNewUser"?replaceCode(navigation.getState().routes[2].params.user_phone_number,countryCode):replaceCode(navigation.getState().routes[1].params.user_phone_number,countryCode)}</Text>
         </View>
         <View style={{padding: 20}}>
           <Text style={{fontWeight: 'bold', paddingBottom: 15}}>
@@ -534,21 +578,31 @@ const ChatScreen = ({navigation}: props) => {
   const [show_paid_modal, setshow_paid_modal] = React.useState(false);
   const [show_receive_modal, setshow_recieve_modal] = React.useState(false);
   const [WantToSearch,SetWantToSearch] = useState(false)
-  
+  const [countryCode,setCountryCode] = useState("")
   const [isLoading,setLoading] = useState(true)
   const dispatch = useDispatch()
 
   const data = useSelector(state => state.chatData.data);
   const balance = useSelector(state => state.chatData.balance);
   
+  const getUserCountryCode = async()=>{
+    const user = await AsyncStorage.getItem("user")
+    const parse = JSON.parse(user)
+    console.log(parse)
+    setCountryCode(parse.country_code)
+
+    
+    
+
+  }
 const getData = () => {
   try {
     return async dispatch => {
       const user = await AsyncStorage.getItem("user");
       const parse = JSON.parse(user)
       let user_phone_number = navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number
-
-      firestore().collection('ac_vouchers').where("gl2","==",user_phone_number.replace("-","").replace("-","").replace(" ","").replace(" ",""),"and","glcode","==",parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ","")).get()
+     
+      firestore().collection("ac_vouchers").where("gl2","==",replaceCode(user_phone_number,countryCode)).where("glcode","==",parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ","")).get()
       .then(res=>{
         dispatch({
           type: GETCHATDATA,
@@ -573,7 +627,7 @@ const getBalance = ()=>{
   let paid = 0
   let user_phone_number = navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number
 
-  firestore().collection("ac_vouchers").where("gl2","==",user_phone_number.replace("-","").replace("-","").replace(" ","").replace(" ","")).where("glcode","==",parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ","")).get()
+  firestore().collection("ac_vouchers").where("gl2","==",replaceCode(user_phone_number,countryCode)).where("glcode","==",parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ","")).get()
   .then(res=>{
     res.docs.forEach(data=>{
       receive = data._data.vseries == "R"?(receive+parseFloat(data._data.amtcr)+parseFloat(data._data.amtdr)):receive
@@ -604,6 +658,7 @@ const fetchData = ()=>dispatch(getData())
  
 
   useEffect(()=>{
+    getUserCountryCode()
     dispatchBalance()
 
     fetchData()
@@ -709,7 +764,7 @@ const fetchData = ()=>dispatch(getData())
             allowFontScaling={false}
             numberOfLines={1}
             style={{fontSize: 22, fontWeight: 'bold', color: '#111111'}}>
-            { navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo  routeName={navigation.getState().routes[1].name} phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo  routeName={navigation.getState().routes[1].name} phone_no={navigation.getState().routes[1].params.user_phone_number}/>}
+            { navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo   phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo   phone_no={navigation.getState().routes[1].params.user_phone_number}/>}
             
            
             
@@ -800,17 +855,17 @@ const fetchData = ()=>dispatch(getData())
              
              let number = ""
              if (Platform.OS === 'ios') {
-             number = `telprompt:${user_phone_number}`;
+             number = `telprompt:${replaceCode(user_phone_number,countryCode)}`;
              }
              else {
-             number = `tel:${user_phone_number}`; 
+             number = `tel:${replaceCode(user_phone_number,countryCode)}`; 
              }
              Linking.openURL(number);
           }} style={{flex: 1, alignItems: 'flex-start'}}>
             <Text
               allowFontScaling={false}
               style={{fontSize: 12, fontWeight: 'bold', color: '#7a7a7a'}}>
-                {navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number}
+                {navigation.getState().routes[1].name =="AddNewUser"?replaceCode(navigation.getState().routes[2].params.user_phone_number,countryCode):replaceCode(navigation.getState().routes[1].params.user_phone_number,countryCode)}
             </Text>
 
 

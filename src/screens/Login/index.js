@@ -87,7 +87,8 @@ const Login = ({navigation}) => {
               "id":res.docs[0].id,
               "email":res.docs[0]._data.email,
               "phone_no":res.docs[0]._data.phone_no,
-              "currency":res.docs[0]._data.currency
+              "currency":res.docs[0]._data.currency,
+              "country_code":countryCode
           }
           await AsyncStorage.setItem("user",JSON.stringify(user))
           navigation.reset({
@@ -157,6 +158,12 @@ const Login = ({navigation}) => {
 
 
             }}
+            onChangeCountry={(val)=>{
+              let code = ("+"+val.callingCode[0]).toString()
+             
+              setCountryCode(code)
+            }}
+          
             
            containerStyle={{width:'100%',height:68,backgroundColor:"blue"}}
            

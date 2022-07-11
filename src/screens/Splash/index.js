@@ -40,7 +40,7 @@ export default class Splash extends React.Component{
     render(){
         return(
             <View style={styles.container}>
-                <Image source={require('../../assetes/images/logo.png')}/>
+                <Image source={require('../../assetes/images/logo.png')} style={{width:100,height:100}}/>
             </View>
         )
     }

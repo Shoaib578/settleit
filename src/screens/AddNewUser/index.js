@@ -9,19 +9,30 @@ import { GETUSERS, SEARCHUSERS } from '../../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { TextInput } from 'react-native-gesture-handler';
 import  Icon  from 'react-native-vector-icons/Feather';
-
+import AsyncStorage from '@react-native-async-storage/async-storage'
 type props = {
     navigation:Object,
 }
 
 
 
+function replaceCode(number,code){
+  let new_number = ''
+  let except = ''
+if(number[0] == "0"){
+except = number.slice(1)
+new_number = (code+except).toString()
+}else{
+  new_number = number.toString()
+}
 
-
+return new_number.replace(" ","").replace(" ","").replace("-","").replace("-","")
+}
 
 const AddNewUser = ({navigation}:props) => {
     
     const [isLoading,setLoading] = useState(true)
+    const [countryCode,setCountryCode] = useState("")
     const [WantToSearch,setWantToSearch] = useState(false)
     const contacts=useSelector(state=>state.users.data)
     const dispatch = useDispatch()
@@ -62,13 +73,23 @@ const AddNewUser = ({navigation}:props) => {
       }
     };
   
+    const getUserCountryCode = async()=>{
+      const user = await AsyncStorage.getItem("user")
+      const parse = JSON.parse(user)
+      console.log(parse)
+      setCountryCode(parse.country_code)
+
+      
+      
+
+    }
     
     const fetchData = ()=>dispatch(getData()) 
  
     
 
     useEffect(()=>{
-
+      getUserCountryCode()
     fetchData()
         
     },[])
@@ -80,7 +101,7 @@ const AddNewUser = ({navigation}:props) => {
                 </View>
                 <View style={{flex:1, paddingLeft:10}}>
                     <Text style={{fontSize:20, fontWeight:'bold', color:'#111111'}}>{item.givenName}</Text>
-                    <Text style={{fontSize:18, fontWeight:'500', color:'#7a7a7a'}}>{item.phoneNumbers.length>0?item.phoneNumbers[0].number:null}</Text>
+                    <Text style={{fontSize:18, fontWeight:'500', color:'#7a7a7a'}}>{item.phoneNumbers.length>0?replaceCode(item.phoneNumbers[0].number,countryCode):null}</Text>
                 </View>
               <InviteUserButton user_phone_no={item.phoneNumbers.length>0?item.phoneNumbers[0].number:null}/>
             </TouchableOpacity>

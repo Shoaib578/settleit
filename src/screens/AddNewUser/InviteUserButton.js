@@ -6,13 +6,25 @@ import SendSMS from 'react-native-sms'
 
 export default class InviteUserButton extends React.Component{
     state = {
-        visible:false
+        visible:false,
     }
+     replaceCode = (number,code)=>{
+        let new_number = ''
+        let except = ''
+      if(number[0] == "0"){
+      except = number.slice(1)
+      new_number = (code+except).toString()
+      }else{
+        new_number = number.toString()
+      }
+      
+      return new_number.replace(" ","").replace(" ","").replace("-","").replace("-","")
+      }
     check = async()=>{
         const user = await AsyncStorage.getItem("user")
         const parse = JSON.parse(user)
         console.log(this.props.user_phone_no)
-        firestore().collection("invited_users").where("invited_by","==",parse.phone_no).where("invited_user","==",this.props.user_phone_no).get()
+        firestore().collection("invited_users").where("invited_by","==",parse.phone_no).where("invited_user","==",this.replaceCode(this.props.user_phone_no,parse.country_code)).get()
         .then(res=>{
             if(res.size>0){
                 this.setState({visible:false})
