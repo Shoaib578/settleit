@@ -26,7 +26,7 @@ import firestore from '@react-native-firebase/firestore'
 import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Moment from 'moment';
-import GetUsetNameByPhoneNo from '../Home/getUserNameBYPhoneNo';
+
 
 import  Icon  from 'react-native-vector-icons/Feather';
 import { GETCHATDATA, SEARCHCHATDATA,GETBALANCE } from '../../redux/actions';
@@ -54,7 +54,7 @@ new_number = (code+except).toString()
 
 return new_number.replace(" ","").replace(" ","").replace("-","").replace("-","")
 }
-
+const timestamp = firestore.FieldValue.serverTimestamp;
 
 const Paid = async(date,mode,amtcr,reason,navigation,fetchData)=>{
 const user = await AsyncStorage.getItem("user")
@@ -74,6 +74,8 @@ firestore().collection("ac_vouchers").add({
   gl2:replaceCode(user_phone_number,parse.country_code),
   glcode:parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ",""),
   vdate:date,
+  glname:parse.glname,
+  gl2name:navigation.getState().routes[2].params.name,
   linenum:1,
   mode:mode,
   amtcr:amtcr,
@@ -81,6 +83,7 @@ firestore().collection("ac_vouchers").add({
   amtdr:0,
   vseries:"P",
   currency:parse.currency,
+  createdAt:timestamp()
 })
 
 
@@ -91,12 +94,16 @@ firestore().collection("ac_vouchers").add({
   glcode:replaceCode(user_phone_number,parse.country_code),
   vdate:date,
   linenum:2,
+  glname:parse.glname,
+  gl2name:navigation.getState().routes[2].params.name,
   mode:mode,
   amtcr:0,
   narr:reason,
   amtdr:amtcr,
   vseries:"P",
   currency:parse.currency,
+  createdAt:timestamp()
+
 
 })
   Alert.alert("Paid Successfully")
@@ -129,12 +136,16 @@ const Receive = async(date,mode,amount,reason,navigation,fetchData)=>{
     glcode:parse.phone_no.replace(" ","").replace(" ","").replace("-","").replace("-",""),
     vdate:date,
     linenum:1,
+    glname:parse.glname,
+  gl2name:navigation.getState().routes[2].params.name,
     mode:mode,
     amtcr:0,
     narr:reason,
     amtdr:amount,
     vseries:"R",
     currency:parse.currency,
+  createdAt:timestamp()
+
 
   })
   .then(res=>{
@@ -142,6 +153,8 @@ const Receive = async(date,mode,amount,reason,navigation,fetchData)=>{
       gl2:parse.phone_no.replace(" ","").replace(" ","").replace("-","").replace("-",""),
       glcode:replaceCode(user_phone_number,parse.country_code),
       vdate:date,
+      glname:parse.glname,
+  gl2name:navigation.getState().routes[2].params.name,
       linenum:2,
       mode:mode,
       amtcr:amount,
@@ -149,6 +162,8 @@ const Receive = async(date,mode,amount,reason,navigation,fetchData)=>{
       amtdr:0,
       vseries:"R",
   currency:parse.currency,
+  createdAt:timestamp()
+
 
     })
     
@@ -224,7 +239,7 @@ const PaidModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBalanc
             borderBottomWidth: 1,
             padding: 20,
           }}>
-            <Text>{ navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo  phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo phone_no={navigation.getState().routes[1].params.user_phone_number}/>}</Text>
+            <Text>{ navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.name:navigation.getState().routes[1].params.name}</Text>
           
             <Text>{navigation.getState().routes[1].name =="AddNewUser"?replaceCode(navigation.getState().routes[2].params.user_phone_number,countryCode):replaceCode(navigation.getState().routes[1].params.user_phone_number,countryCode)}</Text>
         </View>
@@ -434,7 +449,7 @@ const ReceiveModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBal
             padding: 20,
           }}>
           
-          <Text>{ navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo  phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo   phone_no={navigation.getState().routes[1].params.user_phone_number}/>}</Text>
+          <Text>{ navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.name:navigation.getState().routes[1].params.name}</Text>
 
           
           <Text>{navigation.getState().routes[1].name =="AddNewUser"?replaceCode(navigation.getState().routes[2].params.user_phone_number,countryCode):replaceCode(navigation.getState().routes[1].params.user_phone_number,countryCode)}</Text>
@@ -601,12 +616,15 @@ const getData = () => {
       const user = await AsyncStorage.getItem("user");
       const parse = JSON.parse(user)
       let user_phone_number = navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number
-     
-      firestore().collection("ac_vouchers").where("gl2","==",replaceCode(user_phone_number,countryCode)).where("glcode","==",parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ","")).get()
+      console.log(user_phone_number)
+      firestore().collection("ac_vouchers").orderBy('createdAt','desc').where("gl2","==", user_phone_number).where("glcode","==",parse.phone_no).get()
       .then(res=>{
+        
+       console.log(res.docs)
+
         dispatch({
           type: GETCHATDATA,
-          payload: res.docs
+          payload:res.docs
         });
         setLoading(false)
       })
@@ -626,8 +644,10 @@ const getBalance = ()=>{
   let receive = 0
   let paid = 0
   let user_phone_number = navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number
-
-  firestore().collection("ac_vouchers").where("gl2","==",replaceCode(user_phone_number,countryCode)).where("glcode","==",parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ","")).get()
+  user_phone_number = replaceCode(user_phone_number,countryCode)
+  console.log(user_phone_number)
+  let my_phone = replaceCode(parse.phone_no,parse.country_code)
+  firestore().collection("ac_vouchers").where("gl2","==",replaceCode(user_phone_number,countryCode)).where("glcode","==",my_phone).get()
   .then(res=>{
     res.docs.forEach(data=>{
       receive = data._data.vseries == "R"?(receive+parseFloat(data._data.amtcr)+parseFloat(data._data.amtdr)):receive
@@ -764,7 +784,7 @@ const fetchData = ()=>dispatch(getData())
             allowFontScaling={false}
             numberOfLines={1}
             style={{fontSize: 22, fontWeight: 'bold', color: '#111111'}}>
-            { navigation.getState().routes[1].name =="AddNewUser"?<GetUsetNameByPhoneNo   phone_no={navigation.getState().routes[2].params.user_phone_number}/>:<GetUsetNameByPhoneNo   phone_no={navigation.getState().routes[1].params.user_phone_number}/>}
+            { navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.name:navigation.getState().routes[1].params.name}
             
            
             

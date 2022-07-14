@@ -30,6 +30,21 @@ type addButtonProps = {
   onButtonPress: Object,
 };
 
+
+function replaceCode(number,code){
+  let new_number = ''
+  let except = ''
+if(number[0] === "0"){
+except = number.slice(1)
+new_number = (code+except).toString()
+}else{
+  new_number = number.toString()
+}
+
+return new_number.replace(" ","").replace(" ","").replace("-","").replace("-","")
+}
+
+
 const AddButton = ({onButtonPress}: addButtonProps) => {
   return (
     <TouchableOpacity
@@ -83,7 +98,7 @@ const Home = ({navigation}: props) => {
         const user = await AsyncStorage.getItem("user");
         const parse = JSON.parse(user)
 
-        firestore().collection("ac_vouchers").where("glcode","==",parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ",""),"or","gl2","==",parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ","")).get()
+        firestore().collection("ac_vouchers").orderBy('createdAt','desc').where("glcode","==",replaceCode(parse.phone_no,parse.country_code),"or","gl2","==",replaceCode(parse.phone_no,parse.country_code)).get()
         .then(res=>{
           dispatch({
             type: GETHOMEDATA,

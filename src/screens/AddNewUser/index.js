@@ -95,7 +95,7 @@ const AddNewUser = ({navigation}:props) => {
     },[])
     const showListData = ({item,index}) => {
         return(
-            <TouchableOpacity key={index} onPress={()=>navigation.navigate("ChatScreen",{user_phone_number:item.phoneNumbers.length>0?item.phoneNumbers[0].number:null,name:item.displayName})} style={{paddingVertical:10, paddingHorizontal:15, flexDirection:'row', width:'100%', borderBottomColor:'#7a7a7a', borderBottomWidth:1}}>
+            <TouchableOpacity key={index} onPress={()=>navigation.navigate("ChatScreen",{user_phone_number:item.phoneNumbers.length>0?replaceCode(item.phoneNumbers[0].number,countryCode):null,name:item.displayName})} style={{paddingVertical:10, paddingHorizontal:15, flexDirection:'row', width:'100%', borderBottomColor:'#7a7a7a', borderBottomWidth:1}}>
                 <View style={{height:50, width:50, borderRadius:20}}>
                     <Image source={PersonImage} style={{height:'100%', width:'100%', resizeMode:'contain'}} />
                 </View>
