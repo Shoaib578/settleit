@@ -14,7 +14,9 @@ export default class Item extends React.Component{
               borderRadius: 10,
               padding: 10,
               backgroundColor: '#50AF58',
-              alignSelf: 'flex-start',
+              alignSelf: 'flex-end',
+              justifyContent:"space-between",
+              flexWrap:"wrap"
             }}>
             <View
               >
@@ -35,7 +37,7 @@ export default class Item extends React.Component{
 
             
             <View
-              style={{flex: 1, justifyContent: 'center', alignItems: 'center',left:'90%'}}>
+              >
               <View
                 style={{
                   backgroundColor: 'white',
@@ -47,7 +49,7 @@ export default class Item extends React.Component{
                 }}>
                 <Text
                   allowFontScaling={false}
-                  style={{fontSize: 12, fontWeight: 'bold', color: '#111111'}}>
+                  style={{fontSize: 10, fontWeight: 'bold', color: '#111111'}}>
                   {item._data.amtdr} {item._data.currency}
                 </Text>
               </View>
@@ -69,8 +71,9 @@ export default class Item extends React.Component{
               borderRadius: 10,
               padding: 10,
               backgroundColor: '#3091F2',
-              alignSelf: 'flex-end',
-              justifyContent:"space-between"
+              alignSelf: 'flex-start',
+              justifyContent:"space-between",
+              flexWrap:"wrap"
             }}>
             <View
               >
@@ -88,8 +91,8 @@ export default class Item extends React.Component{
                 {item._data.narr}
               </Text>
             </View>
-            <View
-              style={{flex: 1, justifyContent: 'center', alignItems: 'center',left:'90%'}}>
+              <View>
+
               <View
                 style={{
                   backgroundColor: 'white',
@@ -101,14 +104,16 @@ export default class Item extends React.Component{
                 }}>
                 <Text
                   allowFontScaling={false}
-                  style={{fontSize: 14, fontWeight: 'bold', color: '#111111'}}
+                  style={{fontSize: 10, fontWeight: 'bold', color: '#111111'}}
                   numberOfLines={1}>
                   {item._data.amtcr} {item._data.currency}
                 </Text>
               </View>
+
+              </View>
             </View>
            
-          </View>
+         
         
         )}
       </View>

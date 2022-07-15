@@ -659,7 +659,7 @@ const getBalance = ()=>{
    
   
     })
-    balance = amtdr - amtcr
+    balance = amtdr>amtcr? amtdr - amtcr:amtcr-amtdr
 
     dispatch({
       type: GETBALANCE,
