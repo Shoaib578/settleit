@@ -8,7 +8,9 @@ export default class GetGl2Name extends React.Component{
         name:this.props.gl2,
         
     }
-   
+   componentDidMount(){
+    console.log(this.props)
+   }
 
    
     render(){

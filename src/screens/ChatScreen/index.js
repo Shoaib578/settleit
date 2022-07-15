@@ -65,7 +65,7 @@ if(Date(date)>new Date()){
 }
 let user_phone_number = navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number
 console.log(amtcr)
-
+console.log(navigation.getState().routes)
 if(amtcr <1){
   Alert.alert("The Amount Must Be Greater than 0")
   return false
@@ -75,7 +75,6 @@ firestore().collection("ac_vouchers").add({
   glcode:parse.phone_no.replace("-","").replace("-","").replace(" ","").replace(" ",""),
   vdate:date,
   glname:parse.glname,
-  gl2name:navigation.getState().routes[2].params.name,
   linenum:1,
   mode:mode,
   amtcr:amtcr,
@@ -94,8 +93,8 @@ firestore().collection("ac_vouchers").add({
   glcode:replaceCode(user_phone_number,parse.country_code),
   vdate:date,
   linenum:2,
-  glname:parse.glname,
-  gl2name:navigation.getState().routes[2].params.name,
+  glname:navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.name:navigation.getState().routes[1].params.name,
+
   mode:mode,
   amtcr:0,
   narr:reason,
@@ -137,7 +136,7 @@ const Receive = async(date,mode,amount,reason,navigation,fetchData)=>{
     vdate:date,
     linenum:1,
     glname:parse.glname,
-  gl2name:navigation.getState().routes[2].params.name,
+  
     mode:mode,
     amtcr:0,
     narr:reason,
@@ -153,8 +152,8 @@ const Receive = async(date,mode,amount,reason,navigation,fetchData)=>{
       gl2:parse.phone_no.replace(" ","").replace(" ","").replace("-","").replace("-",""),
       glcode:replaceCode(user_phone_number,parse.country_code),
       vdate:date,
-      glname:parse.glname,
-  gl2name:navigation.getState().routes[2].params.name,
+  glname:navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.name:navigation.getState().routes[1].params.name,
+      
       linenum:2,
       mode:mode,
       amtcr:amount,
@@ -611,13 +610,14 @@ const ChatScreen = ({navigation}: props) => {
 
   }
 const getData = () => {
+  console.log(navigation.getState().routes[1].name)
   try {
     return async dispatch => {
       const user = await AsyncStorage.getItem("user");
       const parse = JSON.parse(user)
       let user_phone_number = navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number
-      console.log(user_phone_number)
-      firestore().collection("ac_vouchers").orderBy('createdAt','desc').where("gl2","==", user_phone_number).where("glcode","==",parse.phone_no).get()
+      
+      firestore().collection("ac_vouchers").orderBy('createdAt','desc').where("glcode","==", parse.phone_no).where("gl2","==",user_phone_number).get()
       .then(res=>{
         
        console.log(res.docs)
@@ -641,25 +641,29 @@ const getBalance = ()=>{
     return async dispatch => {
   const user = await AsyncStorage.getItem("user")
   const parse = JSON.parse(user)
-  let receive = 0
-  let paid = 0
+  let balance = 0
+  
   let user_phone_number = navigation.getState().routes[1].name =="AddNewUser"?navigation.getState().routes[2].params.user_phone_number:navigation.getState().routes[1].params.user_phone_number
-  user_phone_number = replaceCode(user_phone_number,countryCode)
-  console.log(user_phone_number)
-  let my_phone = replaceCode(parse.phone_no,parse.country_code)
-  firestore().collection("ac_vouchers").where("gl2","==",replaceCode(user_phone_number,countryCode)).where("glcode","==",my_phone).get()
+
+  
+  let amtdr = 0
+  let amtcr = 0
+  firestore().collection("ac_vouchers").where("glcode","==", parse.phone_no).where("gl2","==",user_phone_number).get()
   .then(res=>{
     res.docs.forEach(data=>{
-      receive = data._data.vseries == "R"?(receive+parseFloat(data._data.amtcr)+parseFloat(data._data.amtdr)):receive
-      paid = data._data.vseries == "P"?(paid+parseFloat(data._data.amtcr)+parseFloat(data._data.amtdr)):paid
+      console.log("Amtdr" + data._data.amtdr)
+      console.log("Amtcr" + data._data.amtcr)
+
+      amtcr = data._data.vseries == "P"?amtcr+parseFloat(data._data.amtcr):amtcr
+      amtdr = data._data.vseries == "R"?amtdr+parseFloat(data._data.amtdr):amtdr
+   
   
     })
-    console.log(paid)
-    console.log(receive)
+    balance = amtdr - amtcr
 
     dispatch({
       type: GETBALANCE,
-      payload: paid>receive?paid-receive:receive-paid
+      payload: balance
     });
  
   

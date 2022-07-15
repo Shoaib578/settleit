@@ -97,14 +97,14 @@ const Login = ({navigation}) => {
           });
           }else{
             console.log("Invalid")
-            Alert.alert("Invalidat Email or Password")
+            Alert.alert("Invalidat Phone Number or Password")
           }
           setState({...state, loader:false});
   
         }else{
           console.log("Invalid")
   
-          Alert.alert("Invalid Email or Password")
+          Alert.alert("Invalid Phone Number or Password")
       setState({...state, loader:false});
   
         }

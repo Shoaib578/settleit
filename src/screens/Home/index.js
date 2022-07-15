@@ -98,7 +98,7 @@ const Home = ({navigation}: props) => {
         const user = await AsyncStorage.getItem("user");
         const parse = JSON.parse(user)
 
-        firestore().collection("ac_vouchers").orderBy('createdAt','desc').where("glcode","==",replaceCode(parse.phone_no,parse.country_code),"or","gl2","==",replaceCode(parse.phone_no,parse.country_code)).get()
+        firestore().collection("ac_vouchers").orderBy('createdAt','desc').where("gl2","==",replaceCode(parse.phone_no,parse.country_code)).get()
         .then(res=>{
           dispatch({
             type: GETHOMEDATA,

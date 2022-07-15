@@ -17,13 +17,8 @@ export default class Item extends React.Component{
               const user = await AsyncStorage.getItem("user")
               const parse = JSON.parse(user)
 
-              if(parse.phone_no == item._data.gl2){
-                Alert.alert("We Cant Navigate")
-                return false
-
-              }else{
-               this.props.navigation.navigate('ChatScreen',{user_phone_number:item._data.gl2,name:item._data.gl2name})
-              }
+               this.props.navigation.navigate('ChatScreen',{user_phone_number:item._data.glcode,name:item._data.glname})
+              
             } }
             style={{
               backgroundColor: '#50AF58',
@@ -44,7 +39,7 @@ export default class Item extends React.Component{
                   allowFontScaling={false}
                   style={{fontSize: 14, fontWeight: 'bold', color: '#ffffff'}}
                   numberOfLines={1}>
-                  {<GetGl2Name gl2={item._data.gl2name}/>}
+                  {<GetGl2Name gl2={item._data.glname}/>}
                 </Text>
               </View>
               <View
@@ -94,12 +89,9 @@ export default class Item extends React.Component{
                 const user = await AsyncStorage.getItem("user")
                 const parse = JSON.parse(user)
   
-                if(parse.phone_no == item._data.gl2){
-                  Alert.alert("We Cant Navigate")
-                  return false
-                }else{
-                  this.props.navigation.navigate('ChatScreen',{user_phone_number:item._data.gl2,name:item._data.gl2name})
-                }
+               
+                  this.props.navigation.navigate('ChatScreen',{user_phone_number:item._data.glcode,name:item._data.glname})
+                
               } 
             }
             style={{
@@ -120,7 +112,7 @@ export default class Item extends React.Component{
                   allowFontScaling={false}
                   style={{fontSize: 14, fontWeight: 'bold', color: '#111111'}}
                   numberOfLines={1}>
-                    {<GetGl2Name gl2={item._data.gl2name}/>}
+                    {<GetGl2Name gl2={item._data.glname}/>}
 
                 </Text>
               </View>
