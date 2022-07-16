@@ -12,8 +12,9 @@ import {
   Platform,
   Linking,
   ActivityIndicator,
-  
 } from 'react-native';
+import {useNetInfo} from "@react-native-community/netinfo";
+
 import Common from '../../common';
 import Modal from 'react-native-modal';
 import RNPickerSelect from 'react-native-picker-select';
@@ -109,7 +110,7 @@ firestore().collection("ac_vouchers").add({
   fetchData()
 })
 .catch(err=>{
-  Alert.alert("Something Went Wrong")
+  Alert.alert(err.message)
 })
 }
 
@@ -165,16 +166,17 @@ const Receive = async(date,mode,amount,reason,navigation,fetchData)=>{
 
 
     })
+
     
     Alert.alert("Recived Successfully")
     fetchData()
   })
   .catch(err=>{
-    Alert.alert("Something Went Wrong")
+    Alert.alert(err.message)
   })
   }
 
-const PaidModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBalance}: modalPropss) => {
+const PaidModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBalance,net}: modalPropss) => {
   Moment.locale('en')
   
   const [modeData] = useState([
@@ -349,6 +351,11 @@ const PaidModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBalanc
             }}>
             <TouchableOpacity
               onPress={()=>{
+              if(net.isConnected == false){
+                Alert.alert("Check your internet connection")
+                return false
+              }
+
                 Paid(date,mode,amount,reason,navigation,fetchData)
                 .then(()=>{
                 
@@ -377,7 +384,7 @@ const PaidModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBalanc
 
 
 
-const ReceiveModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBalance}: modalProps) => {
+const ReceiveModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBalance,net}: modalProps) => {
   const [modeData] = useState([
     {label: 'Cash', value: 'Cash'},
     {label: 'Bank (Chq/Trf)', value: 'Bank (Chq/Trf)'},
@@ -561,6 +568,10 @@ const ReceiveModal = ({is_visible, onPressClose,navigation,fetchData,dispatchBal
             }}>
             <TouchableOpacity
               onPress={()=>{
+                if(net.isConnected == false){
+                  Alert.alert("Check your internet connection")
+                  return false
+                }
                 Receive(date,mode,amount,reason,navigation,fetchData)
                 .then(()=>{
                   setReason("")
@@ -595,7 +606,7 @@ const ChatScreen = ({navigation}: props) => {
   const [countryCode,setCountryCode] = useState("")
   const [isLoading,setLoading] = useState(true)
   const dispatch = useDispatch()
-
+  const net = useNetInfo()
   const data = useSelector(state => state.chatData.data);
   const balance = useSelector(state => state.chatData.balance);
   
@@ -986,6 +997,8 @@ const fetchData = ()=>dispatch(getData())
       <PaidModal
         is_visible={show_paid_modal}
         navigation={navigation}
+        net={net}
+
         fetchData={()=>fetchData()}
         dispatchBalance={()=>dispatchBalance()}
 
@@ -996,6 +1009,7 @@ const fetchData = ()=>dispatch(getData())
     <ReceiveModal
         is_visible={show_receive_modal}
         navigation={navigation}
+        net={net}
         fetchData={()=>fetchData()}
         dispatchBalance={()=>dispatchBalance()}
         onPressClose={() => setshow_recieve_modal(false)}
